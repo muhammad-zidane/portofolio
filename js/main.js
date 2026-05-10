@@ -1,81 +1,100 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Mobile Menu Toggle
-  const menuToggle = document.getElementById('menuToggle');
-  const navLinks = document.getElementById('navLinks');
+  const menuToggle = document.getElementById("menuToggle");
+  const navLinks = document.getElementById("navLinks");
 
   if (menuToggle && navLinks) {
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('active');
-      navLinks.classList.toggle('active');
-      document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    menuToggle.addEventListener("click", () => {
+      menuToggle.classList.toggle("active");
+      navLinks.classList.toggle("active");
+      document.body.style.overflow = navLinks.classList.contains("active")
+        ? "hidden"
+        : "";
     });
 
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        menuToggle.classList.remove('active');
-        navLinks.classList.remove('active');
-        document.body.style.overflow = '';
+    document.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        menuToggle.classList.remove("active");
+        navLinks.classList.remove("active");
+        document.body.style.overflow = "";
       });
     });
   }
 
   // Smooth Scroll with Navbar Offset
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      const id = this.getAttribute('href');
-      if (id === '#') return;
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      const id = this.getAttribute("href");
+      if (id === "#") return;
       const target = document.querySelector(id);
       if (target) {
         e.preventDefault();
         const offset = 64;
         window.scrollTo({
           top: target.getBoundingClientRect().top + window.pageYOffset - offset,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     });
   });
 
   // Active Nav Link on Scroll
-  const sections = document.querySelectorAll('section');
-  const navItems = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll("section");
+  const navItems = document.querySelectorAll(".nav-link");
 
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
+  window.addEventListener("scroll", () => {
+    let current = "";
+    sections.forEach((section) => {
       const top = section.offsetTop - 100;
       if (window.pageYOffset >= top) {
-        current = section.getAttribute('id');
+        current = section.getAttribute("id");
       }
     });
-    navItems.forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('href') === `#${current}`) {
-        item.classList.add('active');
+    navItems.forEach((item) => {
+      item.classList.remove("active");
+      if (item.getAttribute("href") === `#${current}`) {
+        item.classList.add("active");
       }
     });
   });
 
   // Contact Form
-  const form = document.getElementById('contactForm');
+  const form = document.getElementById("contactForm");
   if (form) {
-    form.addEventListener('submit', e => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const btn = form.querySelector('.btn-submit');
+      const btn = form.querySelector(".btn-submit");
       const original = btn.textContent;
-      btn.textContent = 'Mengirim...';
+      btn.textContent = "Mengirim...";
       btn.disabled = true;
-      btn.style.opacity = '0.7';
+      btn.style.opacity = "0.7";
+
+      const data = new FormData(form);
+
+      try {
+        const res = await fetch("https://formspree.io/f/maqvllqk", {
+          method: "POST",
+          body: data,
+          headers: { Accept: "application/json" },
+        });
+
+        if (res.ok) {
+          btn.textContent = "✓ Pesan Terkirim!";
+          btn.style.opacity = "1";
+          form.reset();
+        } else {
+          btn.textContent = "✗ Gagal, coba lagi";
+          btn.style.opacity = "1";
+        }
+      } catch {
+        btn.textContent = "✗ Error jaringan";
+        btn.style.opacity = "1";
+      }
 
       setTimeout(() => {
-        btn.textContent = '✓ Pesan Terkirim!';
-        btn.style.opacity = '1';
-        form.reset();
-        setTimeout(() => {
-          btn.textContent = original;
-          btn.disabled = false;
-        }, 2500);
-      }, 1200);
+        btn.textContent = original;
+        btn.disabled = false;
+      }, 2500);
     });
   }
 });
